@@ -1,0 +1,14 @@
+{
+  "name": "ecom",
+  "version": "1.0.0",
+  "description": "",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "compile": "truffle compile",
+    "migrate": "truffle migrate"
+  },
+  "author": "",
+  "license": "ISC"
+}

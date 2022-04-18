@@ -1,19 +1,19 @@
 import React from "react";
-import { Card, Container, Row, Col } from "react-bootstrap";
+import { Card, Container, Row, Col, Button } from "react-bootstrap";
 
-const Product = ({ name = "Domain Name", domain = "domain.com", price = 100000, address = "0x606633be8f09c38bcA3D3dE6BE65412248107308" }) => {
+export const Product = ({ name = "Domain Name", domain = "domain.com", price = 100000, address = "0x606633be8f09c38bcA3D3dE6BE65412248107308" }) => {
     return (
         <Container fluid>
             <Row className="justify-content-md-center align-self-center">
-                <Product />
+                <ProductCard name={name} domain={domain} price={price} address={address} />
             </Row>
         </Container>
     )
 }
 
-export const ProductCard = ({ name = "Domain Name", domain = "domain.com", price = 100000, address = "0x606633be8f09c38bcA3D3dE6BE65412248107308" }) => {
-    return (<Col xs lg="2">
-        <Card style={{ width: '30rem' }}>
+export const ProductCard = ({ name = "Domain Name", domain = "domain.com", price = 100000, address = "0x606633be8f09c38bcA3D3dE6BE65412248107308", cardClick = () => {}, buy, active }) => {
+    return (<Col xs >
+        <Card>
             <Card.Header>{name}</Card.Header>
             <Card.Body>
                 <blockquote className="blockquote mb-0">
@@ -25,8 +25,7 @@ export const ProductCard = ({ name = "Domain Name", domain = "domain.com", price
                     </footer>
                 </blockquote>
             </Card.Body>
+            {buy && <Button variant="primary" onClick={cardClick} disabled={!active}>Buy</Button>}
         </Card>
     </Col>)
 }
-
-export default Product;
