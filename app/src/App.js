@@ -95,8 +95,9 @@ function App() {
   const addProduct = async ({ domain, name, price, desc }) => {
     const { ethereum } = window;
     if (ethereum) {
-      nftContract.addProduct(domain, name, '', price, desc).then((nftTxn) => {
+      nftContract.addProduct(domain, name, price, desc).then((nftTxn) => {
         nftTxn.wait().catch(err => console.log("Error while txn: ", err));
+        populateMarket(productLen+1, nftContract);
       }).catch((e) => {
         setErrorMessage(e.data.message);
         console.log("caught error", e.data.message);
@@ -104,15 +105,15 @@ function App() {
     }
   }
 
-  // const [productLen, setProdLen] = useState();
+  const [productLen, setProdLen] = useState();
   const [prodList, setProdList] = useState([]);
   const populateMarket = async (productLen, nftContract) => {
     const { ethereum } = window;
     if (ethereum) {
       const buffer = [];
       for (let index = 0; index < productLen; index++) {
-        const data = await nftContract.allProducts(index);
-        console.log(data);
+        const productId = await nftContract.allProducts(index);
+        const data = await nftContract.products(productId);
         buffer.push({ name: data['productName'], domain: data["productId"], price: data['price'], address: data['seller'], isActive: data["isActive"] })
       }
       setProdList(buffer);
@@ -129,10 +130,10 @@ function App() {
         const nftContract = new ethers.Contract(contractAddress, abi, signer);
         setnftContract(nftContract);
         const getlength = async () => {
-          const length = await nftContract.noOfProducts();
-          const temp = BigNumber.from(length._hex).toNumber();
-          // setProdLen(temp);
-          populateMarket(temp, nftContract);
+          const length = await nftContract.getProductCount();
+          const noOfProducts = BigNumber.from(length._hex).toNumber();
+          setProdLen(noOfProducts);
+          populateMarket(noOfProducts, nftContract);
         }
         getlength();
         isBuyer(nftContract, account);
@@ -153,10 +154,17 @@ function App() {
     }
   }
 
-  const selectedProduct = ({domain}) => {
+  const selectedProduct = ({domain, price}) => {
     const { ethereum } = window;
+    const cost = BigNumber.from(price).toString();
     if (ethereum) {
-      nftContract.buyProduct(domain, { value: ethers.utils.parseUnits("1000000000", "wei") }).then(() => {
+      nftContract.buyProduct(domain, { value: ethers.utils.parseUnits(cost, "wei") }).then(() => {
+        setProdList(prodList.map(prod => {
+          if(prod.domain === domain) {
+            return {...prod, isActive: false};
+          }
+          return prod;
+        }));
       }).catch((e) => {
         setErrorMessage(e.data.message);
         console.log("caught error", e.data.message);

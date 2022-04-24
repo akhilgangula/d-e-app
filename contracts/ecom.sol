@@ -2,10 +2,9 @@ pragma solidity ^0.5.4;
 
 contract ecom {
     address payable public owner;
-    uint256 public noOfProducts;
+
     constructor() public {
         owner = msg.sender;
-        noOfProducts=0;
     }
 
     uint256 id;
@@ -19,7 +18,6 @@ contract ecom {
     struct product {
         string productId;
         string productName;
-        string Category;
         uint256 price;
         string description;
         address payable seller;
@@ -41,8 +39,8 @@ contract ecom {
         uint256 purchaseId;
     }
     mapping(address => seller) public sellers;
-    mapping(string => product) products;
-    product[] public allProducts;
+    mapping(string => product) public products;
+    string[] public allProducts;
 
     mapping(address => user) public users;
     mapping(address => orders[]) userOrders;
@@ -86,10 +84,13 @@ contract ecom {
         
     }
 
+    function getProductCount() public view returns(uint count) {
+        return allProducts.length;
+    }
+
     function addProduct(
         string memory _productId,
         string memory _productName,
-        string memory _category,
         uint256 _price,
         string memory _description
     ) public {
@@ -102,7 +103,6 @@ contract ecom {
         product memory productInstace = product(
             _productId,
             _productName,
-            _category,
             _price,
             _description,
             msg.sender,
@@ -111,14 +111,12 @@ contract ecom {
         );
         products[productInstace.productId].productId = productInstace.productId;
         products[productInstace.productId].productName = productInstace.productName;
-        products[productInstace.productId].Category = productInstace.Category;
         products[productInstace.productId].description = productInstace.description;
         products[productInstace.productId].price = productInstace.price;
         products[productInstace.productId].seller = msg.sender;
         products[productInstace.productId].isActive = true;
 		products[productInstace.productId].owner = msg.sender;
-        allProducts.push(productInstace);
-        noOfProducts++;
+        allProducts.push(productInstace.productId);
     }
 
     function myOrders(uint256 _index)
